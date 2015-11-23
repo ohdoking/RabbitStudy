@@ -1,45 +1,38 @@
-package com.ohdoking.rabbit;
+package com.ohdoking.rabbit.simple;
 
 import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.MessageProperties;
 
-public class NewTask {
-
-	private static final String TASK_QUEUE_NAME = "task_queue";
+public class Send {
+	private final static String QUEUE_NAME = "hello";
 
 	public static void main(String[] argv) throws java.io.IOException {
+
 		try {
+			
+			
 			ConnectionFactory factory = new ConnectionFactory();
 			factory.setHost("localhost");
-
 			Connection connection = factory.newConnection();
 
 			Channel channel = connection.createChannel();
 
-			channel.queueDeclare(TASK_QUEUE_NAME, true, false, false, null);
-
-//			int a = (int) (Math.random() * 10);
-			
-			
-			for(int i = 0; i < 5; i++){
-				
-				String message = String.valueOf(i);
-
-				channel.basicPublish("", TASK_QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
-				System.out.println(" [x] Sent '" + message + "'");
-			}
+			channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+			String message = "Hello World!";
+			channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+			System.out.println(" [x] Sent '" + message + "'");
 
 			channel.close();
 			connection.close();
-
+			
+			
 		} catch (TimeoutException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
 
+	}
 }

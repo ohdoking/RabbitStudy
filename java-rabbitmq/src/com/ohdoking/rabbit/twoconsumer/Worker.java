@@ -1,4 +1,4 @@
-package com.ohdoking.rabbit;
+package com.ohdoking.rabbit.twoconsumer;
 
 import java.io.IOException;
 
@@ -19,8 +19,10 @@ public class Worker {
     final Connection connection = factory.newConnection();
     final Channel channel = connection.createChannel();
 
+    
+    //2번째 duration
     channel.queueDeclare(TASK_QUEUE_NAME, true, false, false, null);
-    System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+    System.out.println(" worker 1 [*] Waiting for messages. To exit press CTRL+C");
 
     channel.basicQos(1);
 
@@ -33,8 +35,18 @@ public class Worker {
         try {
           doWork(message);
         } finally {
-          System.out.println(" [x] Done");
-          channel.basicAck(envelope.getDeliveryTag(), false);
+          long l = envelope.getDeliveryTag();
+          System.out.println(" [x] Done - " + l);
+          
+          //ack 을 보내줘서 메시지를 잘 받았다고 알려준다.
+          /*
+           * RabbitMQ not to give more than one message to a worker at a time. 
+           * Or, in other words, don't dispatch a new message to a worker until it has processed and acknowledged the previous one. 
+           * Instead, it will dispatch it to the next worker that is not still busy
+           * 
+           */
+          
+          channel.basicAck(l, false);
         }
       }
     };
@@ -42,14 +54,10 @@ public class Worker {
   }
 
   private static void doWork(String task) {
-    for (char ch : task.toCharArray()) {
-      if (ch == '.') {
         try {
-          Thread.sleep(1000);
+          Thread.sleep(2000);
         } catch (InterruptedException _ignored) {
           Thread.currentThread().interrupt();
         }
-      }
-    }
   }
 }

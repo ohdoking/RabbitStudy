@@ -1,4 +1,4 @@
-package com.ohdoking.rabbit;
+package com.ohdoking.rabbit.simple;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
